@@ -8,10 +8,10 @@
 #
 
 library(shiny)
-library(shinydashboard)
 library(readr)
-library(plotly)
+library(ggplot2)
 library(tidyverse)
+library(cowplot)
 
 
 mypath <- "C:/Users/Ella Dunn/Desktop/Data Visualization/Shiny/Final Project/Logistic-Regression/socialnetworkads.csv"
@@ -23,46 +23,63 @@ shinyServer(function(input, output, session) {
     
     updateSelectInput(session, "gender", choices = c("Choose a Gender"="", gender))
     
-    output$n1 <- renderValueBox({
-        count <- data %>% 
-            summarize(sum = sum(Purchased))
-        
-        valueBox(
-            value =  count,
-            subtitle = "Total Purchased",
-            icon = icon("table")
-        )
+    predictdata <- reactive({
+            data <- data %>% filter(age ==input$age, gender = input$gender,
+                                    salary = input$salary)
+        return(data)
+    })
+    
+    output$one <- renderTable({
+        count <- data %>% summarize(sum = sum(Purchased))
+                 
+                 # valueBox(
+                 #     value =  count,
+                 #     subtitle = "Predicted Value",
+                 #     icon = icon("table")
+                 # )
     })
     
     plotdata <- reactive({
-        if(input$rb == "age") {
-            data <- data %>% filter(xvariable == Age, Gender == input$gender)
+        if (input$rb == "age1") {
+            x.variable <- data %>% filter(x.variable == Age)
+            xvariable.new <- seq(15000, 50000, 100000, 125000, 150000)
+            
         }
         else
-            if(input$rb == "salary") {
-                data <- data %>% filter(xvariable == EstimatedSalary, Gender == input$gender)
+            if (input$rb == "salary1") {
+                x.variable <- data %>% filter(x.variable == EstimatedSalary)
+                xvariable.new <- seq(20, 30, 40, 50, 60)
             }
         return(data)
     })
     
-    output$logisticplot <- renderPlotly({
+    # plotwithgender <- reactive({
+    #     if ()
+    # })
+    
+    output$logisticplot <- renderPlot({
         
-        fit1 <- glm(plotdata()$Purchased ~ plotdata()$xvariable, family = binomial(link = logit))
+        fit1 <- glm(data$Purchased ~ data$x.variable, family = binomial(link = logit))
         
-        plottingdata <- tibble(
-            xvariable = xvariable.new,
-            log.odds = predict(fit1, newdata = data.frame(xvariable = xvariable.new), type = "link"),
+        
+        predictdata <- tibble(
+            Age = Age.new,
+            log.odds = predict(fit1, newdata = data.frame(Age = Age.new), type = "link"),
             odds = exp(log.odds),
             prob = odds/(l+odds)
         )
         
-        p <- plot_ly(plotdata(),
-                     x = ~xvariable, y=~Purchased,
-                     type = 'scatter', mode = 'markers') %>%
-            layout(title = "Logistic Regression: Prob. of Purchase",
-                   yaxis = list("Probability of Purchase"))
+        plot.logodds <- ggplot(predictdata, aes(x = Age, y = log.odds)) +
+            geom_line(color = "blue", size = 1) + theme_bw() + 
+        plot.odds <- ggplot(predictdata, aes(x = Age, y = odds)) +
+            geom_line(color = "red", size = 1) + theme_bw()
+        plot.probs <- ggplot(predictdata, aes(x = Age, y = prob)) +
+            geom_line(color = "green", size = 1) + theme_bw()
+    
+        p <- plot_grid(plot.logodds, plot.odds, plot.probs, nrow = 1)
+        
         return(p)
         
-    })
+        })
     
 })

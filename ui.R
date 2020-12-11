@@ -8,22 +8,61 @@
 #
 
 library(shiny)
+library(ggplot2)
 library(shinydashboard)
-library(plotly)
 
-dashboardPage(
-    dashboardHeader(title = "Logistic Regression"),
-    dashboardSidebar(
-        radioButtons("rb", "Select What to Plot:", 
-                     choices = list("Age" = "age",
-                                    "Estimated Salary" = "salary")
+fluidPage(
+    titlePanel("Logistic Regression"),
+    tabsetPanel(
+        tabPanel("Plotting", fluid = TRUE,
+                 sidebarLayout(
+                     sidebarPanel(
+                        radioButtons("rb", "Select Predictor Variable:", 
+                        choices = list("Age" = "age1",
+                                    "Estimated Salary" = "salary1"),
+                        selected = FALSE
+                        ),
+                        conditionalPanel(condition = "input.rb == 'age1'",
+                            checkboxInput("gender1", "Also plot Gender?", 
+                                     value = FALSE)
+                        ),
+                        conditionalPanel(condition = "input.rb == 'salary1'",
+                            checkboxInput("gender2", "Also plot Gender?",
+                                     value = FALSE)
+                        )
+                    ),
+                    mainPanel(
+                        fluidRow(
+                            plotOutput("logisticplot")  
+                        )
+                ))),
+        tabPanel("Prediction", fluid = TRUE,
+                 sidebarLayout(
+                     sidebarPanel(
+                         sliderInput("age", "Select Age:", min = 18, max = 60, value = 18, sep = ""),
+                         sliderInput("salary", "Select Estimated Salary", min = 15000, 
+                                     max = 150000, value = 15000),
+                         selectInput("gender", "Select Gender",  choices=c("Choose a Gender"=""))
+                     ),
+                    mainPanel(
+                        tableOutput("one")
+                    )
+                )
         ),
-        selectInput("gender", "Select Gender: ", choices = c("Choose a Gender"=""), multiple = TRUE)
-    ),
-   dashboardBody(
-        fluidRow(
-            valueBoxOutput("n1", width = 4),
-            plotOutput("logisticplot")
-       )  
+        tabPanel("Simulation", fluid = TRUE,
+                 sidebarLayout(
+                   sidebarPanel(
+                     sliderInput("age", "Select Age:", min = 18, max = 60, value = 18, sep = ""),
+                     sliderInput("salary", "Select Estimated Salary", min = 15000, 
+                                 max = 150000, value = 15000),
+                     selectInput("gender", "Select Gender",  choices=c("Choose a Gender"=""))
+                   ),
+                   mainPanel(
+                     tableOutput("one")
+                   )
+                 )
+        )
     )
 )
+                        
+  
