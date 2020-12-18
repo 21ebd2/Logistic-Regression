@@ -68,7 +68,11 @@ navbarPage("Logistic Regression", theme = shinytheme("flatly"),
                                 box(title = "Visualization of Data", status = "primary",
                                     solidHeader = T, color = "yellow",
                                     width = 12, plotOutput("summaryplot"),
-                                    infoBoxOutput("max", width = 12)
+                                    valueBoxOutput("categorical", width = 12),
+                                    valueBoxOutput("min", width = 3),
+                                    valueBoxOutput("max", width = 3),
+                                    valueBoxOutput("mean", width = 3),
+                                    valueBoxOutput("sd", width = 3)
                                     ),
                                         
                             )

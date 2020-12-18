@@ -18,8 +18,9 @@ library(DT)
 
 
 
-mypath <- "https://storage.googleapis.com/kagglesdsdata/datasets/7812/11044/Social_Network_Ads.csv?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20201215%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20201215T162011Z&X-Goog-Expires=259199&X-Goog-SignedHeaders=host&X-Goog-Signature=8c7f8562ed534958f2aa49919e36c6b5183daae0f7e16061a9e076afc03d55b0499c7ce794fec83c80089218b73fcd56b42c8d8d7107215b84e8040deba77805bb13c755ab6272288b445faeec87fe813efa18398eeb2f7cbc492890f3030f1d7a7bdd1679e72928f1b0d0858b998f08ff3ec1bc8c55aafc6568a3931759673ab2a8092eba18c423f862c4a82c54ed9b25f19711d9aa0f8c9fb9345da980e2c736ff6f091ce758f9441bc04aa89acae890f5162feab6466cbf9498081771034981031080872fd20431850473f69c7a219761b59a603b6c38704de6fef1edb48958b3abdf292f8dd80a4573852699760988b824d588363fc61069d3bbb7ef521a"
+mypath <- "https://storage.googleapis.com/kagglesdsdata/datasets/7812/11044/Social_Network_Ads.csv?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20201218%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20201218T163352Z&X-Goog-Expires=259199&X-Goog-SignedHeaders=host&X-Goog-Signature=02d71235c4e9474056645d2066254d7827f45dc3b48c2bb6a0ea8675a3d3b68b6222219d76a98974fdaaf7790ee68cb6bb89bac7ff69a6ec36c470c0adf59075625f4d8860b71f8f4efdc8e51eb20e0f170f115012c927c82964b25e0dec8ba537d2577075ccce84c3aa8afc51426d9733f6bf004c27cd79795df2e7affb02455bebab9a857627095c5a64668a4495216dfc5ecc230d3bd6ac1bdaa5cd26ca8e2c8f0b327b56259ddcee6858cf601bd9bb1e0901b3b3d6e44f9d5bbf86e86348485df533768d5d4cd40e78abd23f103e55c4cf11b2eb315543b2f4392d92923643fb7b85729c7b511e562ea9e24a99079b9d4196cfe048fb99ec179c2ff0fca7"
 logisticdata <- read_csv(mypath)
+logisticdata <- logisticdata %>% mutate(quantPurchased = Purchased)
 logisticdata$Purchased <- factor(logisticdata$Purchased)
 
 shinyServer(function(input, output, session) {
@@ -47,7 +48,7 @@ shinyServer(function(input, output, session) {
         se.log.odds <- prediction$se.fit
         ci <- log.odds + c(-1,1)*qnorm(0.975)*se.log.odds
         
-        return(round(exp(ci)/(1+exp(ci)),3))
+        return(round((exp(ci)/(1+exp(ci)))*100,2))
     })
     
     
@@ -63,7 +64,7 @@ shinyServer(function(input, output, session) {
     output$confinterval <- renderInfoBox({
         
         infoBox(
-            "95% Confidence Interval", paste0("(", confintervaldata()[1], ", ", confintervaldata()[2], ")"),
+            "95% Confidence Interval", paste0("(", confintervaldata()[1], "%, ", confintervaldata()[2], "%)"),
             icon = icon("shopping-basket"),
             color = "blue", fill = T)
     })
@@ -88,7 +89,7 @@ shinyServer(function(input, output, session) {
             subtitle = "This dataset contains information on roughly 400 respondents and whether or not they 
                     purchased an item after seeing a social media ad. Information on the respondents age,
                     gender, and estimated salary is given, along with the binary outcome of whether or not
-                    they made a purchase (1 = yes, 0 = no)",
+                    they made a purchase (1 = yes, 0 = no). Source: Kaggle.com",
             icon = icon("comment-dots"),
             fill = TRUE,
             color = "light-blue"
@@ -133,29 +134,117 @@ shinyServer(function(input, output, session) {
         return(plot)
     })
     
-    output$max <- renderValueBox({
-        if (input$rb1 == "Age"){
-            infoBox(
-                "Min and Max Values", paste0("The min value of Age is 18 and maximum value is 60"),
-                color = "light-blue")
-        }
-        else
-            if (input$rb1 == 'Estimated_Salary'){
-                infoBox(
-                    "Min and Max Values", paste0("The min value of Estimated Salary is $15,000 and maximum value is $150,000"),
-                    color = "light-blue")
-            }
+     output$min <- renderValueBox({
+         if (input$rb1 == "Age"){
+             valueBox(
+                 "Min", min(logisticdata$Age), color = "red")
+         }
+         else
+             if (input$rb1 == 'Estimated_Salary'){
+                 valueBox(
+                     "Min", min(logisticdata$EstimatedSalary), color = "red")
+             }
+         else 
+             if (input$rb1 == 'Gender'){
+                valueBox(
+                     "Min", "NA", color = "red")
+         }
+         else
+             if (input$rb1 == 'Purchased'){
+                 valueBox(
+                     "Min", 0, color = "red")
+             }
+     })
+     
+     output$max <- renderValueBox({
+         if (input$rb1 == "Age"){
+             valueBox(
+                 "Max", max(logisticdata$Age), color = "blue")
+         }
+         else
+             if (input$rb1 == 'Estimated_Salary'){
+                 valueBox(
+                     "Max", max(logisticdata$EstimatedSalary), color = "blue")
+             }
+         else
+             if (input$rb1 == 'Gender'){
+                valueBox(
+                 "Max", "NA", color = "blue")
+         }
+         else
+             if (input$rb1 == 'Purchased'){
+                 valueBox(
+                     "Max", 1, color = "blue")
+             }
+     })
+     
+     output$mean <- renderValueBox({
+         if (input$rb1 == "Age"){
+             valueBox(
+                 "Mean", round(mean(logisticdata$Age),2), color = "green")
+         }
+         else
+             if (input$rb1 == 'Estimated_Salary'){
+                 valueBox(
+                     "Mean", round(mean(logisticdata$EstimatedSalary),2), color = "green")
+             }
+         else
+             if (input$rb1 == 'Gender'){
+                valueBox(
+                 "Mean", "NA", color = "green")
+         }
+         else
+             if (input$rb1 == 'Purchased'){
+                 valueBox(
+                     "Mean", round(mean(logisticdata$quantPurchased),2), color = "green")
+             }
+     })
+     
+     output$sd <- renderValueBox({
+         if (input$rb1 == "Age"){
+             valueBox(
+                 "S.D.", round(sd(logisticdata$Age),2), color = "yellow")
+         }
+         else
+             if (input$rb1 == 'Estimated_Salary'){
+                 valueBox(
+                     "S.D.", round(sd(logisticdata$EstimatedSalary),2), color = "yellow")
+             }
         else
             if (input$rb1 == 'Gender'){
-                infoBox("Gender Composition", paste0("The sample is 51% female and 49% male"),
-                        color = "light-blue")
-            }
+                 valueBox(
+                 "S.D.", "NA", color = "yellow")
+         }
+        else
+             if (input$rb1 == 'Purchased'){
+                 valueBox(
+                     "S.D.", round(sd(logisticdata$quantPurchased),2), color = "yellow")
+         }
+})
+     
+     output$categorical <- renderValueBox({
+         if (input$rb1 == "Age"){
+             valueBox("Age Composition", paste0("The histogram of age shows a roughly uniform distribution with 
+                                                values rannging from 18 to 60"),
+                      color = "light-blue")
+         }
+         else
+             if (input$rb1 == 'Estimated_Salary'){
+                 valueBox("Estimated Salary Composition", paste0("The histogram of estimated salaries is slighly
+                                                                 skewed right with values ranging from 15,000 to 150,000"),
+                          color = "light-blue")
+             }
+        else
+            if (input$rb1 == 'Gender'){
+                valueBox("Gender Composition", paste0("The sample is 51% female and 49% male"),
+                     color = "light-blue")
+         }
         else
             if (input$rb1 == 'Purchased'){
-                infoBox("Purchased Composition", paste0("35.8% of respondents purchased an item after clicking on a social media ad"),
-                        color = "light-blue")
-            }
-    })
+                 valueBox("Purchased Composition", paste0("35.8% of respondents purchased an item after clicking on a social media ad"),
+                     color = "light-blue")
+         }
+     })
     
     output$mydata <- renderDT({
         df <- logisticdata
