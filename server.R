@@ -20,7 +20,7 @@ library(DT)
 
 mypath <- "https://storage.googleapis.com/kagglesdsdata/datasets/7812/11044/Social_Network_Ads.csv?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20201218%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20201218T163352Z&X-Goog-Expires=259199&X-Goog-SignedHeaders=host&X-Goog-Signature=02d71235c4e9474056645d2066254d7827f45dc3b48c2bb6a0ea8675a3d3b68b6222219d76a98974fdaaf7790ee68cb6bb89bac7ff69a6ec36c470c0adf59075625f4d8860b71f8f4efdc8e51eb20e0f170f115012c927c82964b25e0dec8ba537d2577075ccce84c3aa8afc51426d9733f6bf004c27cd79795df2e7affb02455bebab9a857627095c5a64668a4495216dfc5ecc230d3bd6ac1bdaa5cd26ca8e2c8f0b327b56259ddcee6858cf601bd9bb1e0901b3b3d6e44f9d5bbf86e86348485df533768d5d4cd40e78abd23f103e55c4cf11b2eb315543b2f4392d92923643fb7b85729c7b511e562ea9e24a99079b9d4196cfe048fb99ec179c2ff0fca7"
 logisticdata <- read_csv(mypath)
-logisticdata <- logisticdata %>% mutate(quantPurchased = Purchased)
+dataforsummary <- logisticdata %>% mutate(quantPurchased = Purchased)
 logisticdata$Purchased <- factor(logisticdata$Purchased)
 
 shinyServer(function(input, output, session) {
@@ -196,7 +196,7 @@ shinyServer(function(input, output, session) {
          else
              if (input$rb1 == 'Purchased'){
                  valueBox(
-                     "Mean", round(mean(logisticdata$quantPurchased),2), color = "green")
+                     "Mean", round(mean(dataforsummary$quantPurchased),2), color = "green")
              }
      })
      
@@ -218,7 +218,7 @@ shinyServer(function(input, output, session) {
         else
              if (input$rb1 == 'Purchased'){
                  valueBox(
-                     "S.D.", round(sd(logisticdata$quantPurchased),2), color = "yellow")
+                     "S.D.", round(sd(dataforsummary$quantPurchased),2), color = "yellow")
          }
 })
      
