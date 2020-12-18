@@ -67,9 +67,10 @@ navbarPage("Logistic Regression", theme = shinytheme("flatly"),
                             fluidRow(
                                 box(title = "Visualization of Data", status = "primary",
                                     solidHeader = T, color = "yellow",
-                                    width = 12, plotOutput("summaryplot"))),
-                            fluidRow(
-                                infoBoxOutput("max", width = 12)
+                                    width = 12, plotOutput("summaryplot"),
+                                    infoBoxOutput("max", width = 12)
+                                    ),
+                                        
                             )
                         ))),
            tabPanel("Raw Data",

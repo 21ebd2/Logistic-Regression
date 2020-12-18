@@ -10,7 +10,6 @@
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
-library(readr)
 library(tidyverse)
 library(readr)
 library(ggplot2)
@@ -22,7 +21,6 @@ library(DT)
 mypath <- "https://storage.googleapis.com/kagglesdsdata/datasets/7812/11044/Social_Network_Ads.csv?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20201215%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20201215T162011Z&X-Goog-Expires=259199&X-Goog-SignedHeaders=host&X-Goog-Signature=8c7f8562ed534958f2aa49919e36c6b5183daae0f7e16061a9e076afc03d55b0499c7ce794fec83c80089218b73fcd56b42c8d8d7107215b84e8040deba77805bb13c755ab6272288b445faeec87fe813efa18398eeb2f7cbc492890f3030f1d7a7bdd1679e72928f1b0d0858b998f08ff3ec1bc8c55aafc6568a3931759673ab2a8092eba18c423f862c4a82c54ed9b25f19711d9aa0f8c9fb9345da980e2c736ff6f091ce758f9441bc04aa89acae890f5162feab6466cbf9498081771034981031080872fd20431850473f69c7a219761b59a603b6c38704de6fef1edb48958b3abdf292f8dd80a4573852699760988b824d588363fc61069d3bbb7ef521a"
 logisticdata <- read_csv(mypath)
 logisticdata$Purchased <- factor(logisticdata$Purchased)
-gender <- logisticdata %>% select(Gender)
 
 shinyServer(function(input, output, session) {
     
@@ -66,7 +64,7 @@ shinyServer(function(input, output, session) {
         
         infoBox(
             "95% Confidence Interval", paste0("(", confintervaldata()[1], ", ", confintervaldata()[2], ")"),
-            icon = icon("percent"),
+            icon = icon("shopping-basket"),
             color = "blue", fill = T)
     })
     
@@ -76,9 +74,9 @@ shinyServer(function(input, output, session) {
         infoBox(
             "In Context", paste0("A ",input$gender," that is ", input$age,
                                  " years old and has an estimated salary of ",
-                                 input$salary, " dollars has a ", predictdata(),
-                                 "% chance of purchasing an item after clicking on a social media ad."),
-            icon = icon("ad"),
+                                 input$salary, " dollars has an expected probability of ", predictdata(),
+                                 "% of purchasing an item after clicking on a social media ad."),
+            icon = icon("shopping-bag"),
             color = "navy", fill= T)
     })
     
@@ -139,26 +137,22 @@ shinyServer(function(input, output, session) {
         if (input$rb1 == "Age"){
             infoBox(
                 "Min and Max Values", paste0("The min value of Age is 18 and maximum value is 60"),
-                icon = icon("sticky-note"),
                 color = "light-blue")
         }
         else
             if (input$rb1 == 'Estimated_Salary'){
                 infoBox(
                     "Min and Max Values", paste0("The min value of Estimated Salary is $15,000 and maximum value is $150,000"),
-                    icon = icon("sticky-note"),
                     color = "light-blue")
             }
         else
             if (input$rb1 == 'Gender'){
                 infoBox("Gender Composition", paste0("The sample is 51% female and 49% male"),
-                        icon = icon("sticky-note"),
                         color = "light-blue")
             }
         else
             if (input$rb1 == 'Purchased'){
                 infoBox("Purchased Composition", paste0("35.8% of respondents purchased an item after clicking on a social media ad"),
-                        icon = icon("sticky-note"),
                         color = "light-blue")
             }
     })
@@ -269,8 +263,8 @@ shinyServer(function(input, output, session) {
             plot.odds <- ggplot(plotdata, aes(x = x.variable, y = odds, color = Gender)) +
                 geom_line(size = 1) +
                 geom_ribbon(aes(ymin = odds.LB, ymax = odds.UB, fill = Gender), color = NA, alpha= .2) +
-                scale_color_manual(values = c("red", "purple"), name = "Gender:") + 
-                scale_fill_manual(values =  c("pink", "light pink"), name = "Gender:") + 
+                scale_color_manual(values = c("purple", "red"), name = "Gender:") + 
+                scale_fill_manual(values =  c("plum1", "pink"), name = "Gender:") + 
                 theme_bw() + theme(legend.position = "top") + 
                 labs(x= input$rb)
             
@@ -278,8 +272,8 @@ shinyServer(function(input, output, session) {
             plot.probs <- ggplot(plotdata, aes(x = x.variable, y = prob, color = Gender)) +
                 geom_line(size = 1) +
                 geom_ribbon(aes(ymin = prob.LB, ymax = prob.UB, fill = Gender), color = NA, alpha= .2) +
-                scale_color_manual(values = c("blue", "green"), name = "Gender:") + 
-                scale_fill_manual(values = c("light blue", "light green"), name = "Gender:") + 
+                scale_color_manual(values = c("dark green", "green"), name = "Gender:") + 
+                scale_fill_manual(values = c("light green", "seagreen3"), name = "Gender:") + 
                 theme_bw() + theme(legend.position = "top") + 
                 labs(x= input$rb)
             
