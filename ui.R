@@ -34,7 +34,7 @@ navbarPage("Logistic Regression", theme = shinytheme("flatly"),
                                     width = 12, plotOutput("logisticplot"))  
                             )
                         ))),
-           tabPanel("Parameter Estimates", fluid = TRUE,
+           tabPanel("Prediction Estimates", fluid = TRUE,
                     sidebarLayout(
                         sidebarPanel(
                             sliderInput("age", "Select Age:", min = 18, max = 60, value = 18, sep = ""),
